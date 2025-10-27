@@ -19,10 +19,12 @@ return new class extends Migration
             $table->char('uf', 2);
             $table->decimal('altura', 5, 2);
             $table->date('data_implantacao')->nullable();
-            $table->string('foto')->nullable(); // caminho ou nome do arquivo
+            $table->string('foto')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
+
 
     /**
      * Reverse the migrations.
