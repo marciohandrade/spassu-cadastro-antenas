@@ -25,4 +25,9 @@ class AntenaRepository implements AntenaRepositoryInterface
     {
         return Antena::create($data);
     }
+
+    public function findOrFail($id)
+    {
+        return Antena::findOrFail($id);
+    }
 }

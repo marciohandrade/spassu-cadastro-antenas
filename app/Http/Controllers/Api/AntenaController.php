@@ -8,17 +8,22 @@ use App\Repositories\Contracts\AntenaRepositoryInterface;
 
 class AntenaController extends Controller
 {
-    protected AntenaRepositoryInterface $repo;
+    protected $repo;
+    protected $ibge;
 
-    public function __construct(AntenaRepositoryInterface $repo)
+    public function __construct(AntenaRepositoryInterface $repo, IbgeService $ibge)
     {
         $this->repo = $repo;
+        $this->ibge = $ibge;
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $antenas = $this->repo->all();
-        return response()->json(['data' => $antenas]);
+        $ranking = $this->repo->topRanking();
+        $ufs = $this->ibge->getEstados();
+
+        return view('antenas.index', compact('antenas', 'ranking', 'ufs'));
     }
 
     public function ranking()

@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('antenas', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+
+            //$table->uuid('id')->primary();
+            $table->id();
             $table->string('descricao', 100)->unique();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
