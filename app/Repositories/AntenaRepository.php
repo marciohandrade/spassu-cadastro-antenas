@@ -26,6 +26,12 @@ class AntenaRepository implements AntenaRepositoryInterface
         return Antena::create($data);
     }
 
+    public function delete($id)
+    {
+        $antena = Antena::findOrFail($id);
+        return $antena->delete();
+    }
+
     public function findOrFail($id)
     {
         return Antena::findOrFail($id);
