@@ -591,7 +591,7 @@
                                             </svg>
                                             Ver
                                         </button>
-                                        <a href="{{ route('antenas.edit', $antena->id) }}" class="btn-action btn-edit">
+                                        <button onclick="openEditModal('{{ $antena->id }}')" class="btn-action btn-edit">
                                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
@@ -646,6 +646,172 @@
                     <div class="spinner"></div>
                 </div>
             </div>
+        </div>
+    </div>
+    <!-- Modal Edit Overlay -->
+    <div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal()"></div>
+
+    <!-- Modal Edit Container -->
+    <div class="modal-container" id="editModalContainer">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    ✏️ Editar Antena
+                </h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+
+            <form id="editAntennaForm" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_antena_id" name="antena_id">
+
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <!-- Descrição -->
+                        <div class="form-group full-width">
+                            <label class="form-label">
+                                Descrição <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="descricao"
+                                id="edit_descricao"
+                                class="form-input"
+                                placeholder="Ex: Antena Torre Central São Paulo"
+                                minlength="10"
+                                maxlength="100"
+                                required
+                            >
+                            <span class="error-message" id="error-edit-descricao"></span>
+                        </div>
+
+                        <!-- UF -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                UF <span class="required">*</span>
+                            </label>
+                            <select name="uf" id="edit_uf" class="form-input" required>
+                                <option value="">Selecione uma UF</option>
+                                @foreach ($ufs as $uf)
+                                    <option value="{{ $uf['sigla'] }}">{{ $uf['sigla'] }} - {{ $uf['nome'] }}</option>
+                                @endforeach
+                            </select>
+                            <span class="error-message" id="error-edit-uf"></span>
+                        </div>
+
+                        <!-- Altura -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Altura (metros) <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="altura"
+                                id="edit_altura"
+                                class="form-input"
+                                placeholder="Ex: 45.5"
+                                required
+                            >
+                            <span class="error-message" id="error-edit-altura"></span>
+                        </div>
+
+                        <!-- Latitude -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Latitude <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="latitude"
+                                id="edit_latitude"
+                                class="form-input"
+                                placeholder="Ex: -23.550520"
+                                required
+                            >
+                            <span class="error-message" id="error-edit-latitude"></span>
+                        </div>
+
+                        <!-- Longitude -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Longitude <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="longitude"
+                                id="edit_longitude"
+                                class="form-input"
+                                placeholder="Ex: -46.633308"
+                                required
+                            >
+                            <span class="error-message" id="error-edit-longitude"></span>
+                        </div>
+
+                        <!-- Data de Implantação -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Data de Implantação
+                            </label>
+                            <input
+                                type="text"
+                                name="data_implantacao"
+                                id="edit_data_implantacao"
+                                class="form-input"
+                                placeholder="DD/MM/AAAA"
+                            >
+                            <span class="error-message" id="error-edit-data_implantacao"></span>
+                        </div>
+
+                        <!-- Foto Atual -->
+                        <div class="form-group full-width" id="edit_current_photo_container">
+                            <label class="form-label">Foto Atual</label>
+                            <img id="edit_current_photo" src="" style="max-width: 200px; border-radius: 8px; display: none;">
+                            <p id="edit_no_photo" style="color: #6b7280; display: none;">Nenhuma foto cadastrada</p>
+                        </div>
+
+                        <!-- Nova Foto -->
+                        <div class="form-group full-width">
+                            <label class="form-label">
+                                Alterar Foto (PNG ou JPG)
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input
+                                    type="file"
+                                    name="foto"
+                                    id="edit_foto"
+                                    class="file-upload-input"
+                                    accept=".png,.jpg,.jpeg"
+                                    onchange="handleEditFileSelect(event)"
+                                >
+                                <label for="edit_foto" class="file-upload-label" id="editFileLabel">
+                                    <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                    </svg>
+                                    <div>
+                                        <div style="font-weight: 600; color: #374151;">Clique para alterar foto</div>
+                                        <div style="font-size: 0.875rem; color: #6b7280;">PNG ou JPG (máx. 5MB)</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="file-preview" id="editFilePreview">
+                                <img id="editPreviewImage" src="" alt="Preview">
+                            </div>
+                            <span class="error-message" id="error-edit-foto"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-submit" id="editSubmitBtn">
+                        <span class="spinner"></span>
+                        <span class="btn-text">Salvar Alterações</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -818,5 +984,137 @@
                 closeAntennaModal();
             }
         });
+
+        // modal edit antena
+        // Funções da Modal EDIT
+        async function openEditModal(antennaId) {
+            document.getElementById('editModalOverlay').classList.add('active');
+            document.getElementById('editModalContainer').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Busca dados da antena
+            try {
+                const response = await fetch(`/antenas/${antennaId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.antena) {
+                    fillEditForm(data.antena);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar antena:', error);
+                showToast('error', 'Erro', 'Não foi possível carregar os dados da antena');
+                closeEditModal();
+            }
+        }
+
+        function fillEditForm(antena) {
+            document.getElementById('edit_antena_id').value = antena.id;
+            document.getElementById('edit_descricao').value = antena.descricao;
+            document.getElementById('edit_uf').value = antena.uf;
+            document.getElementById('edit_latitude').value = antena.latitude;
+            document.getElementById('edit_longitude').value = antena.longitude;
+            document.getElementById('edit_altura').value = antena.altura;
+
+            // Data de implantação
+            if (antena.data_implantacao && antena.data_implantacao !== 'Não informada') {
+                document.getElementById('edit_data_implantacao').value = antena.data_implantacao;
+            }
+
+            // Foto atual
+            if (antena.foto) {
+                document.getElementById('edit_current_photo').src = antena.foto;
+                document.getElementById('edit_current_photo').style.display = 'block';
+                document.getElementById('edit_no_photo').style.display = 'none';
+            } else {
+                document.getElementById('edit_current_photo').style.display = 'none';
+                document.getElementById('edit_no_photo').style.display = 'block';
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModalOverlay').classList.remove('active');
+            document.getElementById('editModalContainer').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('editAntennaForm').reset();
+            clearEditErrors();
+            clearEditFilePreview();
+        }
+
+        function handleEditFileSelect(event) {
+            const file = event.target.files[0];
+            const label = document.getElementById('editFileLabel');
+            const preview = document.getElementById('editFilePreview');
+            const previewImg = document.getElementById('editPreviewImage');
+
+            if (file) {
+                const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                if (!validTypes.includes(file.type)) {
+                    showError('edit-foto', 'Apenas arquivos PNG ou JPG são permitidos');
+                    event.target.value = '';
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('edit-foto', 'O arquivo deve ter no máximo 5MB');
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.add('show');
+                    label.classList.add('has-file');
+                    label.innerHTML = `
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <div>
+                    <div style="font-weight: 600; color: #10b981;">${file.name}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">Clique para alterar</div>
+                </div>
+            `;
+                };
+                reader.readAsDataURL(file);
+                clearError('edit-foto');
+            }
+        }
+
+        function clearEditFilePreview() {
+            const label = document.getElementById('editFileLabel');
+            const preview = document.getElementById('editFilePreview');
+
+            preview.classList.remove('show');
+            label.classList.remove('has-file');
+            label.innerHTML = `
+        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <div>
+            <div style="font-weight: 600; color: #374151;">Clique para alterar foto</div>
+            <div style="font-size: 0.875rem; color: #6b7280;">PNG ou JPG (máx. 5MB)</div>
+        </div>
+    `;
+        }
+
+        function clearEditErrors() {
+            const errorElements = document.querySelectorAll('[id^="error-edit-"]');
+            const inputElements = document.querySelectorAll('#editAntennaForm .form-input');
+
+            errorElements.forEach(el => {
+                el.textContent = '';
+                el.classList.remove('show');
+            });
+
+            inputElements.forEach(el => {
+                el.classList.remove('error');
+            });
+        }
     </script>
 @endsection
