@@ -66,13 +66,15 @@ class AntenaController extends Controller
 
     public function store(Request $request)
     {
+        //dd($request->all());
+
         $data = $request->validate([
             'descricao' => 'required|string|min:10|max:100|unique:antenas,descricao',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'uf' => 'required|string|size:2',
             'altura' => 'required|numeric|gt:0',
-            'data_implantacao' => 'nullable|date',
+            'data_implantacao' => 'nullable|date_format:Y-m-d',
             'foto' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ]);
 

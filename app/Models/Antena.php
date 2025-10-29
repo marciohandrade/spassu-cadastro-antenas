@@ -17,7 +17,7 @@ class Antena extends Model
         'descricao',
         'latitude',
         'longitude',
-        'uf_sigla',
+        'uf',
         'cidade',
         'altura',
         'data_implantacao',

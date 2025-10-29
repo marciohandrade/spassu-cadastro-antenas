@@ -784,6 +784,24 @@
         @endif
     </div>
 
+    <!-- Modal Detalhes da Antena -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeAntennaModal()"></div>
+    <div class="modal-container" id="modalContainer">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    📡 Detalhes da Antena
+                </h2>
+                <button class="modal-close" onclick="closeAntennaModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Create -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeCreateModal()"></div>
     <div class="modal-container" id="modalContainer">
@@ -1050,6 +1068,21 @@
         });
 
         // Funções da Modal
+
+        function closeAntennaModal() {
+            const overlay = document.getElementById('modalOverlay');
+            const container = document.getElementById('modalContainer');
+
+            overlay.classList.remove('active');
+            container.classList.remove('active');
+
+            // Remove mapa ao fechar
+            if (currentMap) {
+                currentMap.remove();
+                currentMap = null;
+            }
+        }
+
         function openCreateModal() {
             document.getElementById('modalOverlay').classList.add('active');
             document.getElementById('modalContainer').classList.add('active');
@@ -1303,6 +1336,10 @@
             formData.append('_token', document.querySelector('input[name="_token"]').value);
 
             // Adiciona todos os campos
+
+            //alert(document.getElementById('uf').value);
+            //return false;
+
             formData.append('descricao', document.getElementById('descricao').value.trim());
             formData.append('uf', document.getElementById('uf').value);
             formData.append('latitude', document.getElementById('latitude').value);
