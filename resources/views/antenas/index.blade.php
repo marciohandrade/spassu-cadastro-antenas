@@ -77,6 +77,88 @@
             text-decoration: none;
         }
 
+        /* === FILTRO DE BUSCA === */
+        .filter-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-wrapper {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .btn-filter {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-clear {
+            padding: 0.75rem 1.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-clear:hover {
+            background: #e5e7eb;
+        }
+
         .card-modern {
             background: white;
             border-radius: 16px;
@@ -732,6 +814,16 @@
                 justify-content: center;
             }
 
+            .filter-wrapper {
+                flex-direction: column;
+            }
+
+            .btn-filter,
+            .btn-clear {
+                width: 100%;
+                justify-content: center;
+            }
+
             .action-buttons {
                 flex-direction: column;
             }
@@ -825,6 +917,41 @@
             </button>
         </div>
 
+        <!-- FILTRO DE BUSCA -->
+        <div class="filter-section">
+            <form method="GET" action="{{ route('antenas.index') }}" id="filterForm">
+                <div class="filter-wrapper">
+                    <div class="filter-input-group">
+                        <svg class="filter-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input
+                            type="text"
+                            name="descricao"
+                            id="filterDescricao"
+                            class="filter-input"
+                            placeholder="Buscar por descrição da antena..."
+                            value="{{ request('descricao') }}"
+                        >
+                    </div>
+                    <button type="submit" class="btn-filter">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Buscar
+                    </button>
+                    @if(request('descricao'))
+                        <a href="{{ route('antenas.index') }}" class="btn-clear">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Limpar
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         <!-- Ranking Antenas -->
         @if ($ranking->isNotEmpty())
             <section class="mb-6">
@@ -916,8 +1043,8 @@
                 @else
                     <div class="empty-state">
                         <div class="empty-state-icon">📡</div>
-                        <h3>Nenhuma antena cadastrada</h3>
-                        <p>Comece adicionando sua primeira antena ao sistema</p>
+                        <h3>{{ request('descricao') ? 'Nenhuma antena encontrada' : 'Nenhuma antena cadastrada' }}</h3>
+                        <p>{{ request('descricao') ? 'Tente buscar com outro termo' : 'Comece adicionando sua primeira antena ao sistema' }}</p>
                     </div>
                 @endif
             </div>
@@ -926,7 +1053,7 @@
         <!-- Pagination -->
         @if(method_exists($antenas, 'links'))
             <div style="margin-top: 2rem;">
-                {{ $antenas->links() }}
+                {{ $antenas->appends(['descricao' => request('descricao')])->links() }}
             </div>
         @endif
     </div>
@@ -1514,7 +1641,7 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
 
-            const icon = type === 'success' ? '✓' : '✕';
+            const icon = type === 'success' ? '✔' : '✕';
 
             toast.innerHTML = `
                 <div class="toast-icon">${icon}</div>
@@ -1576,6 +1703,3 @@
         }
     </style>
 @endsection
-
-
-

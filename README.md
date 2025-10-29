@@ -240,6 +240,7 @@ Estados brasileiros raramente mudam. Cache reduz latência e dependência extern
 
 ### Por que SQLite para desenvolvimento?
 Zero configuração, perfeito para desenvolvimento local.
+Mesmo assim foi utilizado: Mysql com um banco local
 
 ### Por que não UUID?
 Para 100k registros, auto-increment é mais performático. UUID seria ideal para sistema distribuído.
@@ -254,8 +255,8 @@ php artisan tinker
 ```
 
 **Login:**
-- Email: `teste@teste.com`
-- Senha: `12345678`
+- Email: `teste@spassu.com`
+- Senha: `senha123`
 
 ## 🐛 Troubleshooting
 
@@ -296,8 +297,8 @@ Este projeto foi desenvolvido como avaliação técnica para a Spassu.
 
 ## 👨‍💻 Desenvolvedor
 
-**[Seu Nome]**
-- Email: [seu-email]
+**Marcio Holanda de Andrade**
+- Email: marcio.hol@hotmail.com
 - LinkedIn: [seu-linkedin]
 - GitHub: [seu-github]
 
