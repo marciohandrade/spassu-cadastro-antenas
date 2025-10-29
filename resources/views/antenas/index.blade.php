@@ -8,7 +8,7 @@
             --secondary: #8b5cf6;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
+            --warning: #f59e0b;S
         }
 
         .antenna-container {
@@ -597,6 +597,147 @@
             color: #6b7280;
         }
 
+        /* === VIEW MODAL STYLES === */
+        .view-modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.3s ease;
+            position: relative;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .detail-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .detail-value.large {
+            font-size: 1.125rem;
+        }
+
+        .badge-uf-large {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .antenna-photo {
+            width: 100%;
+            height: 400px; /* Altura fixa */
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .antenna-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 👈 ESSA É A MÁGICA! */
+            object-position: center;
+            transition: transform 0.3s ease;
+        }
+
+        .no-photo {
+            background: #f3f4f6;
+            padding: 3rem;
+            text-align: center;
+            border-radius: 12px;
+            border: 2px dashed #d1d5db;
+        }
+
+        .no-photo-icon {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-photo-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .spinner-circle {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
         @media (max-width: 768px) {
             .header-section {
                 flex-direction: column;
@@ -626,6 +767,11 @@
             }
 
             .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .detail-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
@@ -680,6 +826,10 @@
                 text-transform: uppercase;
                 font-size: 0.75rem;
             }
+
+            .map-container {
+                height: 250px;
+            }
         }
     </style>
 
@@ -700,6 +850,29 @@
                 Nova Antena
             </button>
         </div>
+
+        <!-- Ranking Antenas -->
+        @if ($ranking->isNotEmpty())
+            <section class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">🏆 Ranking de UFs com mais antenas</h2>
+                <table class="w-full border border-gray-300 rounded shadow-sm">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left">UF</th>
+                        <th class="px-4 py-2 text-left">Quantidade</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($ranking as $item)
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="px-4 py-2">{{ $item->uf}}</td>
+                            <td class="px-4 py-2">{{ $item->total }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </section>
+        @endif
 
         <!-- Table Card -->
         <div class="card-modern">
@@ -737,13 +910,13 @@
                                 </td>
                                 <td data-label="Ações">
                                     <div class="action-buttons">
-                                        <a href="{{ route('antenas.show', $antena->id) }}" class="btn-action btn-view">
+                                        <button onclick="openViewModal('{{ $antena->id }}')" class="btn-action btn-view">
                                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                             Ver
-                                        </a>
+                                        </button>
                                         <a href="{{ route('antenas.edit', $antena->id) }}" class="btn-action btn-edit">
                                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -939,6 +1112,35 @@
         </div>
     </div>
 
+    <!-- Modal View Overlay -->
+    <div class="modal-overlay" id="viewModalOverlay" onclick="closeViewModal()"></div>
+
+    <!-- Modal View Container -->
+    <div class="modal-container" id="viewModalContainer">
+        <div class="view-modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    📡 Detalhes da Antena
+                </h2>
+                <button class="modal-close" onclick="closeViewModal()">&times;</button>
+            </div>
+
+            <div class="modal-body" id="viewModalBody">
+                <!-- Conteúdo será carregado via JavaScript -->
+                <div class="loading-spinner">
+                    <div class="spinner-circle"></div>
+                    <div class="loading-text">Carregando informações...</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeViewModal()">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -1049,7 +1251,7 @@
             }
         });
 
-        // Funções da Modal
+        // Funções da Modal CREATE
         function openCreateModal() {
             document.getElementById('modalOverlay').classList.add('active');
             document.getElementById('modalContainer').classList.add('active');
@@ -1067,10 +1269,148 @@
             clearFilePreview();
         }
 
-        // Fecha modal ao pressionar ESC
+        // Funções da Modal VIEW
+        async function openViewModal(antennaId) {
+            // Abre a modal
+            document.getElementById('viewModalOverlay').classList.add('active');
+            document.getElementById('viewModalContainer').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Mostra loading
+            const modalBody = document.getElementById('viewModalBody');
+            modalBody.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner-circle"></div>
+                    <div class="loading-text">Carregando informações...</div>
+                </div>
+            `;
+
+            try {
+                // Busca dados da antena
+                const response = await fetch(`/antenas/${antennaId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar dados da antena');
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.antena) {
+                    renderAntennaDetails(data.antena);
+                } else {
+                    throw new Error('Dados inválidos recebidos');
+                }
+
+            } catch (error) {
+                console.error('Erro:', error);
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 3rem;">
+                        <div style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;">⚠️</div>
+                        <h3 style="color: #1f2937; margin-bottom: 0.5rem;">Erro ao carregar</h3>
+                        <p style="color: #6b7280;">Não foi possível carregar os detalhes da antena.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderAntennaDetails(antena) {
+            const modalBody = document.getElementById('viewModalBody');
+
+            const fotoHtml = antena.foto
+                ? `<div class="antenna-photo">
+                       <img src="${antena.foto}" alt="${antena.descricao}" onerror="this.parentElement.innerHTML='<div class=\\'no-photo\\'><div class=\\'no-photo-icon\\'>📷</div><div class=\\'no-photo-text\\'>Imagem não disponível</div></div>'">
+                   </div>`
+                : `<div class="no-photo">
+                       <div class="no-photo-icon">📷</div>
+                       <div class="no-photo-text">Sem foto cadastrada</div>
+                   </div>`;
+
+            modalBody.innerHTML = `
+                <div class="detail-grid">
+                    <!-- Descrição -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Descrição</div>
+                        <div class="detail-value large">${antena.descricao}</div>
+                    </div>
+
+                    <!-- UF -->
+                    <div class="detail-item">
+                        <div class="detail-label">Unidade Federativa</div>
+                        <div class="detail-value">
+                            <span class="badge-uf-large">${antena.uf}</span>
+                        </div>
+                    </div>
+
+                    <!-- Altura -->
+                    <div class="detail-item">
+                        <div class="detail-label">Altura</div>
+                        <div class="detail-value">${antena.altura} metros</div>
+                    </div>
+
+                    <!-- Latitude -->
+                    <div class="detail-item">
+                        <div class="detail-label">Latitude</div>
+                        <div class="detail-value">${antena.latitude}°</div>
+                    </div>
+
+                    <!-- Longitude -->
+                    <div class="detail-item">
+                        <div class="detail-label">Longitude</div>
+                        <div class="detail-value">${antena.longitude}°</div>
+                    </div>
+
+                    <!-- Data de Implantação -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Data de Implantação</div>
+                        <div class="detail-value">${antena.data_implantacao}</div>
+                    </div>
+
+                    <!-- Mapa -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Localização no Mapa</div>
+                        <div class="map-container">
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                frameborder="0"
+                                style="border:0"
+                                src="https://www.openstreetmap.org/export/embed.html?bbox=${antena.longitude-0.01},${antena.latitude-0.01},${antena.longitude+0.01},${antena.latitude+0.01}&layer=mapnik&marker=${antena.latitude},${antena.longitude}"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <div style="margin-top: 0.5rem; text-align: center;">
+                            <a href="https://www.openstreetmap.org/?mlat=${antena.latitude}&mlon=${antena.longitude}#map=15/${antena.latitude}/${antena.longitude}"
+                               target="_blank"
+                               style="color: #667eea; text-decoration: none; font-size: 0.875rem; font-weight: 600;">
+                                Ver mapa completo →
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Foto -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Foto da Antena</div>
+                        ${fotoHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModalOverlay').classList.remove('active');
+            document.getElementById('viewModalContainer').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Fecha modals ao pressionar ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeCreateModal();
+                closeViewModal();
             }
         });
 
@@ -1104,14 +1444,14 @@
                     preview.classList.add('show');
                     label.classList.add('has-file');
                     label.innerHTML = `
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <div>
-                    <div style="font-weight: 600; color: #10b981;">${file.name}</div>
-                    <div style="font-size: 0.875rem; color: #6b7280;">Clique para alterar</div>
-                </div>
-            `;
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600; color: #10b981;">${file.name}</div>
+                            <div style="font-size: 0.875rem; color: #6b7280;">Clique para alterar</div>
+                        </div>
+                    `;
                 };
                 reader.readAsDataURL(file);
                 clearError('foto');
@@ -1125,14 +1465,14 @@
             preview.classList.remove('show');
             label.classList.remove('has-file');
             label.innerHTML = `
-        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-        </svg>
-        <div>
-            <div style="font-weight: 600; color: #374151;">Clique para selecionar</div>
-            <div style="font-size: 0.875rem; color: #6b7280;">PNG ou JPG (máx. 5MB)</div>
-        </div>
-    `;
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <div>
+                    <div style="font-weight: 600; color: #374151;">Clique para selecionar</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">PNG ou JPG (máx. 5MB)</div>
+                </div>
+            `;
         }
 
         // Validações Frontend
@@ -1261,12 +1601,12 @@
             const icon = type === 'success' ? '✓' : '✕';
 
             toast.innerHTML = `
-        <div class="toast-icon">${icon}</div>
-        <div class="toast-content">
-            <div class="toast-title">${title}</div>
-            <div class="toast-message">${message}</div>
-        </div>
-    `;
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
 
             container.appendChild(toast);
 
@@ -1296,30 +1636,24 @@
             submitBtn.classList.add('loading');
             btnText.textContent = 'Cadastrando...';
 
-            // Prepara FormData manualmente para garantir que todos os campos sejam enviados
+            // Prepara FormData
             const formData = new FormData();
-
-            // Adiciona CSRF token
             formData.append('_token', document.querySelector('input[name="_token"]').value);
-
-            // Adiciona todos os campos
             formData.append('descricao', document.getElementById('descricao').value.trim());
             formData.append('uf', document.getElementById('uf').value);
             formData.append('latitude', document.getElementById('latitude').value);
             formData.append('longitude', document.getElementById('longitude').value);
             formData.append('altura', document.getElementById('altura').value);
 
-            // Converte e adiciona data de DD/MM/YYYY para YYYY-MM-DD com padding de zeros
+            // Converte data
             const dataImplantacao = document.getElementById('data_implantacao').value;
             if (dataImplantacao && dataImplantacao.length === 10) {
                 const [day, month, year] = dataImplantacao.split('/');
-                const dayPadded = day.padStart(2, '0');
-                const monthPadded = month.padStart(2, '0');
-                const dateFormatted = `${year}-${monthPadded}-${dayPadded}`;
+                const dateFormatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
                 formData.append('data_implantacao', dateFormatted);
             }
 
-            // Adiciona foto se existir
+            // Adiciona foto
             const fotoInput = document.getElementById('foto');
             if (fotoInput.files.length > 0) {
                 formData.append('foto', fotoInput.files[0]);
@@ -1337,19 +1671,21 @@
 
                 const data = await response.json();
 
-                if (response.ok && data.success) {
-                    // Sucesso
-                    showToast('success', 'Sucesso!', data.message || 'Antena cadastrada com sucesso!');
+                // 🔍 ADICIONE ESTES LOGS AQUI:
+                console.log('==== DEBUG ====');
+                console.log('Dados completos:', data);
+                console.log('Antena:', data.antena);
+                console.log('Foto:', data.antena?.foto);
+                console.log('Foto existe?', !!data.antena?.foto);
+                console.log('==============')
 
-                    // Fecha modal após 1 segundo
+                if (response.ok && data.success) {
+                    showToast('success', 'Sucesso!', data.message || 'Antena cadastrada com sucesso!');
                     setTimeout(() => {
                         closeCreateModal();
-                        // Recarrega a página para mostrar a nova antena
                         window.location.reload();
                     }, 1000);
-
                 } else {
-                    // Erro de validação do backend
                     if (data.errors) {
                         Object.keys(data.errors).forEach(field => {
                             showError(field, data.errors[field][0]);
@@ -1358,18 +1694,13 @@
                     } else {
                         showToast('error', 'Erro', data.message || 'Erro ao cadastrar antena');
                     }
-
-                    // Reabilita botão
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('loading');
                     btnText.textContent = 'Cadastrar Antena';
                 }
-
             } catch (error) {
                 console.error('Erro:', error);
                 showToast('error', 'Erro', 'Erro ao cadastrar antena. Tente novamente.');
-
-                // Reabilita botão
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('loading');
                 btnText.textContent = 'Cadastrar Antena';
