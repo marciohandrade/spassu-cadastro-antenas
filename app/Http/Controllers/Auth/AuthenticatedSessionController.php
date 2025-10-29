@@ -13,6 +13,7 @@ class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
+     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -36,10 +37,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

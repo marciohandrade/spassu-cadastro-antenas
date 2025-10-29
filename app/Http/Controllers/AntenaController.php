@@ -7,6 +7,7 @@ use App\Services\IbgeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Repositories\Contracts\AntenaRepositoryInterface;
+use Illuminate\Support\Facades\Validator;
 
 class AntenaController extends Controller
 {
@@ -19,25 +20,23 @@ class AntenaController extends Controller
 
     public function index(IbgeService $ibge)
     {
-        $antenas = Antena::all();
-        //$antenas = Antena::orderBy('id', 'desc')->paginate(10);
+        // PAGINAÇÃO ATIVADA - CRÍTICO PARA 100K REGISTROS
+        $antenas = Antena::query()->orderBy('id', 'desc')->paginate(50);
         $ranking = $this->repo->topRanking();
-        $ufs = $ibge->getEstados();
 
-        //var_dump(json_encode($antenas));
+        try {
+            $ufs = $ibge->getEstados();
+        } catch (\Exception $e) {
+            $ufs = [];
+        }
 
         return view('antenas.index', compact('antenas', 'ranking', 'ufs'));
     }
 
-    /**
-     * Exibe detalhes de uma antena específica
-     * Retorna JSON para modal AJAX
-     */
     public function show($id)
     {
         $antena = $this->repo->findOrFail($id);
 
-        // Se for requisição AJAX, retorna JSON
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json([
                 'success' => true,
@@ -54,45 +53,89 @@ class AntenaController extends Controller
             ]);
         }
 
-        // Se for acesso direto, renderiza view tradicional
         return view('antenas.show', compact('antena'));
     }
 
     public function create(IbgeService $ibge)
     {
-        $ufs = $ibge->getEstados();
+        try {
+            $ufs = $ibge->getEstados();
+        } catch (\Exception $e) {
+            $ufs = [];
+        }
         return view('antenas.create', compact('ufs'));
     }
 
     public function store(Request $request)
     {
-        //dd($request->all());
-
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'descricao' => 'required|string|min:10|max:100|unique:antenas,descricao',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'uf' => 'required|string|size:2',
             'altura' => 'required|numeric|gt:0',
-            'data_implantacao' => 'nullable|date_format:Y-m-d',
-            'foto' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'data_implantacao' => 'nullable|date',
+            'foto' => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
         ]);
+
+        if ($validator->fails()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $data = $validator->validated();
 
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('antenas', 'public');
             $data['foto'] = $path;
         }
 
-        $antena = $this->repo->create($data);
+        try {
+            $antena = $this->repo->create($data);
 
-        return redirect()->route('antenas.index')
-            ->with('success', 'Antena criada com sucesso.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Antena cadastrada com sucesso!',
+                    'antena' => [
+                        'id' => $antena->id,
+                        'descricao' => $antena->descricao,
+                        'uf' => $antena->uf,
+                        'latitude' => $antena->latitude,
+                        'longitude' => $antena->longitude,
+                        'altura' => $antena->altura,
+                    ]
+                ], 201);
+            }
+
+            return redirect()->route('antenas.index')
+                ->with('success', 'Antena criada com sucesso.');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao cadastrar antena: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return back()->with('error', 'Erro ao cadastrar antena.')
+                ->withInput();
+        }
     }
 
     public function edit($id, IbgeService $ibge)
     {
         $antena = $this->repo->findOrFail($id);
-        $ufs = $ibge->getEstados();
+        try {
+            $ufs = $ibge->getEstados();
+        } catch (\Exception $e) {
+            $ufs = [];
+        }
         return view('antenas.edit', compact('antena', 'ufs'));
     }
 
@@ -100,18 +143,29 @@ class AntenaController extends Controller
     {
         $antena = $this->repo->findOrFail($id);
 
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'descricao' => 'required|string|min:10|max:100|unique:antenas,descricao,' . $id,
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'uf' => 'required|string|size:2',
             'altura' => 'required|numeric|gt:0',
             'data_implantacao' => 'nullable|date',
-            'foto' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'foto' => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
         ]);
 
+        if ($validator->fails()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $data = $validator->validated();
+
         if ($request->hasFile('foto')) {
-            // Remove foto antiga se existir
             if ($antena->foto && Storage::disk('public')->exists($antena->foto)) {
                 Storage::disk('public')->delete($antena->foto);
             }
@@ -119,17 +173,33 @@ class AntenaController extends Controller
             $data['foto'] = $path;
         }
 
-        $this->repo->update($id, $data);
+        try {
+            $this->repo->update($id, $data);
 
-        return redirect()->route('antenas.index')
-            ->with('success', 'Antena atualizada com sucesso.');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Antena atualizada com sucesso!'
+                ]);
+            }
+
+            return redirect()->route('antenas.index')
+                ->with('success', 'Antena atualizada com sucesso.');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao atualizar antena'
+                ], 500);
+            }
+            return back()->with('error', 'Erro ao atualizar antena.');
+        }
     }
 
     public function destroy($id)
     {
         $antena = $this->repo->findOrFail($id);
 
-        // Remove foto se existir
         if ($antena->foto && Storage::disk('public')->exists($antena->foto)) {
             Storage::disk('public')->delete($antena->foto);
         }

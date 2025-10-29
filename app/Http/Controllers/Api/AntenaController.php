@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\AntenaRepositoryInterface;
+use App\Services\IbgeService;
 
 class AntenaController extends Controller
 {
-    protected $repo;
-    protected $ibge;
+    protected AntenaRepositoryInterface $repo;
+    protected IbgeService $ibge;
 
     public function __construct(AntenaRepositoryInterface $repo, IbgeService $ibge)
     {

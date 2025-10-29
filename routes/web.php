@@ -1,50 +1,44 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AntenaController;
+use Illuminate\Support\Facades\Route;
 
+// ============================================
+// ROTAS PÚBLICAS (sem autenticação)
+// ============================================
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Landing page - listagem de antenas
+Route::get('/', [AntenaController::class, 'index'])->name('home');
 
-Route::prefix('antennas')->name('antennas.')->group(function () {
-    Route::get('/', [AntenaController::class, 'index'])->name('index');
-    Route::get('create', [AntenaController::class, 'create'])->name('create');
-    Route::post('/', [AntenaController::class, 'store'])->name('store');
-    Route::get('{antenna}', [AntenaController::class, 'show'])->name('show');
-    Route::get('{antenna}/edit', [AntenaController::class, 'edit'])->name('edit');
-    Route::put('{antenna}', [AntenaController::class, 'update'])->name('update');
-    Route::delete('{antenna}', [AntenaController::class, 'destroy'])->name('destroy');
-});
-Route::get('/', [AntenaController::class, 'index']); // raiz aponta para listagem
+// Rotas públicas de antenas (apenas visualização)
+Route::get('/antenas', [AntenaController::class, 'index'])->name('antenas.index');
+Route::get('/antenas/{antena}', [AntenaController::class, 'show'])->name('antenas.show');
 
+// ============================================
+// ROTAS DE AUTENTICAÇÃO (Breeze)
+// ============================================
+require __DIR__.'/auth.php';
 
-//
-Route::resource('antenas', App\Http\Controllers\AntenaController::class);
+// ============================================
+// ROTAS PROTEGIDAS (requer autenticação) 🔒
+// ============================================
+Route::middleware(['auth', 'verified'])->group(function () {
 
-//
-Route::get('/antenas', [App\Http\Controllers\AntenaController::class, 'index'])->name('antenas.index');
-Route::resource('antenas', AntenaController::class);
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-
-// rotas auxiliares opcionais
-Route::get('antenas/export/csv', [AntenaController::class, 'exportCsv'])->name('antenas.export.csv');
-Route::post('antenas/{antena}/restore', [AntenaController::class, 'restore'])->name('antenas.restore');
-
-
-// Route::get('/', [LandingController::class, 'index'])->name('landing');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
+    // Perfil do usuário
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-require __DIR__.'/auth.php';
+    // CRUD de Antenas (criar, editar, excluir)
+    Route::get('/antenas/create', [AntenaController::class, 'create'])->name('antenas.create');
+    Route::post('/antenas', [AntenaController::class, 'store'])->name('antenas.store');
+    Route::get('/antenas/{antena}/edit', [AntenaController::class, 'edit'])->name('antenas.edit');
+    Route::put('/antenas/{antena}', [AntenaController::class, 'update'])->name('antenas.update');
+    Route::delete('/antenas/{antena}', [AntenaController::class, 'destroy'])->name('antenas.destroy');
+});

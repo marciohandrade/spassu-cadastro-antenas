@@ -9,12 +9,13 @@ class AntenaRepository implements AntenaRepositoryInterface
 {
     public function all()
     {
-        return Antena::orderBy('created_at', 'desc')->get();
+        return Antena::query()->orderBy('created_at', 'desc')->get();
     }
 
     public function topRanking(int $limit = 5)
     {
-        return Antena::selectRaw('uf, COUNT(*) as total')
+        return Antena::query()
+            ->selectRaw('uf, COUNT(*) as total')
             ->groupBy('uf')
             ->orderByDesc('total')
             ->limit($limit)
@@ -23,17 +24,24 @@ class AntenaRepository implements AntenaRepositoryInterface
 
     public function create(array $data)
     {
-        return Antena::create($data);
+        return Antena::query()->create($data);
+    }
+
+    public function update($id, array $data)
+    {
+        $antena = Antena::query()->findOrFail($id);
+        $antena->update($data);
+        return $antena;
     }
 
     public function delete($id)
     {
-        $antena = Antena::findOrFail($id);
+        $antena = Antena::query()->findOrFail($id);
         return $antena->delete();
     }
 
     public function findOrFail($id)
     {
-        return Antena::findOrFail($id);
+        return Antena::query()->findOrFail($id);
     }
 }

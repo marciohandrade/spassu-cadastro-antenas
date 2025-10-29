@@ -4,21 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string|null $foto
+ */
 class Antena extends Model
 {
     use SoftDeletes;
 
-    protected $keyType = 'string';
-    public $incrementing = false;
-
     protected $fillable = [
-        'nome',
         'descricao',
         'latitude',
         'longitude',
         'uf',
-        'cidade',
         'altura',
         'data_implantacao',
         'foto',
@@ -31,13 +30,15 @@ class Antena extends Model
         'data_implantacao' => 'date',
     ];
 
-    // Se você armazenar apenas o caminho (ex: "antenas/xxx.jpg"), esse accessor retorna URL pública
-    public function getFotoUrlAttribute()
+    /**
+     * Retorna URL completa da foto
+     */
+    public function getFotoUrlAttribute(): ?string
     {
-        if (! $this->foto) {
+        if (!$this->foto) {
             return null;
         }
-        // se já salvou com Storage::url(), esse método não é necessário, mas é seguro:
-        return preg_match('#^https?://#', $this->foto) ? $this->foto : Storage::url($this->foto);
+
+        return Storage::url($this->foto);
     }
 }

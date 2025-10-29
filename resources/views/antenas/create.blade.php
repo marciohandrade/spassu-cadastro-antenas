@@ -16,7 +16,7 @@
             </div>
         @endif
 
-        <form action="{{ route('antennas.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+        <form action="{{ route('antenas.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

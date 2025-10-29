@@ -1,61 +1,306 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📡 Sistema de Cadastro de Antenas - Spassu
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web para gerenciamento de antenas de transmissão, desenvolvido em PHP com Laravel.
 
-## About Laravel
+## 🚀 Tecnologias Utilizadas
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **PHP** 8.2+
+- **Laravel** 11.x
+- **Tailwind CSS** 3.x
+- **SQLite** (desenvolvimento) / **MySQL** (produção)
+- **Alpine.js** para interatividade
+- **Leaflet.js** para mapas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Requisitos do Sistema
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.2
+- Composer
+- Node.js >= 18.x
+- NPM ou Yarn
+- Extensões PHP: `pdo`, `mbstring`, `xml`, `gd`, `sqlite3` ou `mysql`
 
-## Learning Laravel
+## 🔧 Instalação
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. Clone o repositório
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+git clone <url-do-repositorio>
+cd spassu-cadastro-antenas
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2. Instale as dependências
 
-## Laravel Sponsors
+```bash
+# Dependências PHP
+composer install
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Dependências JavaScript
+npm install
+```
 
-### Premium Partners
+### 3. Configure o ambiente
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+# Copie o arquivo de ambiente
+cp .env.example .env
 
-## Contributing
+# Gere a chave da aplicação
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Configure o banco de dados
 
-## Code of Conduct
+Edite o arquivo `.env` e configure sua conexão de banco:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```env
+DB_CONNECTION=sqlite
+# OU para MySQL:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=antenas
+# DB_USERNAME=root
+# DB_PASSWORD=
+```
 
-## Security Vulnerabilities
+### 5. Execute as migrations
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate
+```
 
-## License
+### 6. Crie o link simbólico para storage
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan storage:link
+```
+
+### 7. Compile os assets
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Produção
+npm run build
+```
+
+### 8. Inicie o servidor
+
+```bash
+php artisan serve
+```
+
+Acesse: `http://localhost:8000`
+
+## 📊 Carga de Dados (100 mil registros)
+
+Para demonstração da performance com grande volume de dados:
+
+```bash
+# Carrega 100.000 antenas
+php artisan antenas:load
+
+# Ou especifique a quantidade
+php artisan antenas:load 50000
+```
+
+⏱️ **Tempo estimado:** ~30-60 segundos (dependendo do hardware)
+
+## 🧪 Testes
+
+```bash
+# Rodar todos os testes
+php artisan test
+
+# Testes com coverage
+php artisan test --coverage
+
+# Testes específicos
+php artisan test --filter=IbgeServiceTest
+```
+
+## 🏗️ Arquitetura do Projeto
+
+```
+app/
+├── Http/
+│   └── Controllers/
+│       └── AntenaController.php      # Controller principal
+├── Models/
+│   └── Antena.php                    # Model com validações
+├── Repositories/
+│   ├── AntenaRepository.php          # Implementação do repositório
+│   └── Contracts/
+│       └── AntenaRepositoryInterface.php  # Interface
+├── Services/
+│   └── IbgeService.php               # Consumo da API do IBGE
+└── Console/
+    └── Commands/
+        └── LoadMassiveAntennas.php   # Comando de carga massiva
+```
+
+### Padrões Adotados
+
+- **Repository Pattern**: Separação da lógica de acesso a dados
+- **Service Layer**: Lógica de negócio isolada
+- **Dependency Injection**: Controllers recebem dependências via construtor
+- **PSR-12**: Padrão de código seguido
+- **SOLID**: Princípios aplicados na arquitetura
+
+## 📱 Funcionalidades
+
+### ✔️ Públicas (sem autenticação)
+- Listagem de antenas com paginação
+- Visualização individual de antena
+- Mapa com localização (latitude/longitude)
+- Ranking top 5 UFs com mais antenas
+
+### 🔒 Protegidas (requer login)
+- Cadastro de nova antena
+- Edição de antena existente
+- Exclusão de antena (com confirmação)
+- Upload de foto (PNG/JPG, max 2MB)
+- Dashboard do usuário
+
+### 🔐 Autenticação
+- Registro de novo usuário
+- Login / Logout
+- Recuperação de senha
+
+## 🗃️ Estrutura do Banco
+
+### Tabela: `antenas`
+
+| Campo | Tipo | Obrigatório | Validações |
+|-------|------|-------------|------------|
+| id | integer | ✅ | Auto-increment |
+| descricao | varchar(100) | ✅ | Min: 10, Max: 100, Único |
+| latitude | decimal(10,7) | ✅ | Entre -90 e 90 |
+| longitude | decimal(10,7) | ✅ | Entre -180 e 180 |
+| uf | char(2) | ✅ | 2 caracteres |
+| altura | decimal(5,2) | ✅ | Maior que 0 |
+| data_implantacao | date | ❌ | Formato: Y-m-d |
+| foto | varchar(255) | ❌ | PNG ou JPG |
+| created_at | timestamp | ✅ | - |
+| updated_at | timestamp | ✅ | - |
+| deleted_at | timestamp | ❌ | Soft delete |
+
+### Índices
+- Primary Key: `id`
+- Unique: `descricao`
+- Index: `uf` (performance no ranking)
+
+## 🔌 Integração com API Externa
+
+### IBGE - Localidades
+
+O sistema consome a API do IBGE para popular o combo de UFs:
+
+**Endpoint:** `https://servicodados.ibge.gov.br/api/v1/localidades/estados`
+
+**Características:**
+- Cache de 24 horas para performance
+- Fallback para lista estática em caso de falha
+- Timeout de 10 segundos
+- 3 tentativas de retry
+
+## 🎨 Interface
+
+- **Framework CSS**: Tailwind CSS
+- **Componentes**: Alpine.js
+- **Design**: Responsivo (mobile-first)
+- **Acessibilidade**: Semântica HTML5, labels adequados
+- **UX**: Mensagens de feedback, loading states
+
+## 🔒 Segurança
+
+- ✅ Validação server-side de todos os inputs
+- ✅ Proteção CSRF em formulários
+- ✅ Sanitização de uploads
+- ✅ Prepared statements (Eloquent ORM)
+- ✅ Hash bcrypt para senhas
+- ✅ Middleware de autenticação
+
+## ⚡ Performance
+
+- **Paginação**: 50 registros por página
+- **Cache**: API IBGE (24h)
+- **Eager Loading**: Previne N+1 queries
+- **Batch Insert**: 1000 registros por transação
+- **Índices**: UF para queries de ranking
+
+## 📖 Decisões Técnicas
+
+### Por que Repository Pattern?
+Facilita testes, manutenção e possível troca de ORM no futuro.
+
+### Por que cache na API IBGE?
+Estados brasileiros raramente mudam. Cache reduz latência e dependência externa.
+
+### Por que SQLite para desenvolvimento?
+Zero configuração, perfeito para desenvolvimento local.
+
+### Por que não UUID?
+Para 100k registros, auto-increment é mais performático. UUID seria ideal para sistema distribuído.
+
+## 👤 Credenciais de Teste
+
+Após rodar as migrations, crie um usuário:
+
+```bash
+php artisan tinker
+>>> User::create(['name' => 'Teste', 'email' => 'teste@teste.com', 'password' => bcrypt('12345678')])
+```
+
+**Login:**
+- Email: `teste@teste.com`
+- Senha: `12345678`
+
+## 🐛 Troubleshooting
+
+### Erro de permissão no storage
+
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+### Link simbólico não funciona
+
+```bash
+php artisan storage:link
+```
+
+### NPM não compila assets
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+## 📝 TODO / Melhorias Futuras
+
+- [ ] Testes de integração completos
+- [ ] PHPStan level 8
+- [ ] Docker / Laravel Sail
+- [ ] CI/CD com GitLab CI
+- [ ] Export CSV/Excel
+- [ ] Filtros avançados
+- [ ] API REST documentada
+- [ ] Dashboard com gráficos
+
+## 📄 Licença
+
+Este projeto foi desenvolvido como avaliação técnica para a Spassu.
+
+## 👨‍💻 Desenvolvedor
+
+**[Seu Nome]**
+- Email: [seu-email]
+- LinkedIn: [seu-linkedin]
+- GitHub: [seu-github]
+
+---
+
+**Desenvolvido com ❤️ usando Laravel**
