@@ -20,13 +20,7 @@ class AntenaController extends Controller
 
     public function index(IbgeService $ibge)
     {
-        $query = Antena::query();
-
-        if (request()->filled('descricao')) {
-            $query->where('descricao', 'like', '%' . request('descricao') . '%');
-        }
-
-        $antenas = $query->orderBy('id', 'desc')->paginate(50);
+        $antenas = Antena::query()->orderBy('id', 'desc')->paginate(50);
         $ranking = $this->repo->topRanking();
 
         try {
@@ -37,7 +31,6 @@ class AntenaController extends Controller
 
         return view('antenas.index', compact('antenas', 'ranking', 'ufs'));
     }
-
 
     public function show($id)
     {
@@ -150,7 +143,7 @@ class AntenaController extends Controller
         $antena = $this->repo->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'descricao' => 'required|string|min:10|max:100|unique:antenas,descricao,' . $id . ',id',
+            'descricao' => 'required|string|min:10|max:100|unique:antenas,descricao,' . $id,
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'uf' => 'required|string|size:2',
