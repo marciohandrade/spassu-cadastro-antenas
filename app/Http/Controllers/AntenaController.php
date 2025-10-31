@@ -20,7 +20,6 @@ class AntenaController extends Controller
 
     public function index(IbgeService $ibge)
     {
-        // PAGINAÇÃO ATIVADA - CRÍTICO PARA 100K REGISTROS
         $antenas = Antena::query()->orderBy('id', 'desc')->paginate(50);
         $ranking = $this->repo->topRanking();
 
@@ -35,7 +34,17 @@ class AntenaController extends Controller
 
     public function show($id)
     {
-        $antena = $this->repo->findOrFail($id);
+        try {
+            $antena = $this->repo->findOrFail($id);
+        } catch (\Exception $e) {
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Antena não encontrada ou foi removida.'
+                ], 404);
+            }
+            return redirect()->route('antenas.index')->with('error', 'Antena não encontrada ou foi removida.');
+        }
 
         if (request()->wantsJson() || request()->ajax()) {
             return response()->json([
@@ -130,12 +139,13 @@ class AntenaController extends Controller
 
     public function edit($id, IbgeService $ibge)
     {
-        $antena = $this->repo->findOrFail($id);
         try {
+            $antena = $this->repo->findOrFail($id);
             $ufs = $ibge->getEstados();
         } catch (\Exception $e) {
-            $ufs = [];
+            return redirect()->route('antenas.index')->with('error', 'Erro ao carregar dados da antena ou lista de UFs.');
         }
+
         return view('antenas.edit', compact('antena', 'ufs'));
     }
 
@@ -189,7 +199,7 @@ class AntenaController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erro ao atualizar antena'
+                    'message' => 'Erro ao atualizar antena: ' . $e->getMessage()
                 ], 500);
             }
             return back()->with('error', 'Erro ao atualizar antena.');
@@ -198,15 +208,34 @@ class AntenaController extends Controller
 
     public function destroy($id)
     {
-        $antena = $this->repo->findOrFail($id);
+        try {
+            $antena = $this->repo->findOrFail($id);
 
-        if ($antena->foto && Storage::disk('public')->exists($antena->foto)) {
-            Storage::disk('public')->delete($antena->foto);
+            if ($antena->foto && Storage::disk('public')->exists($antena->foto)) {
+                Storage::disk('public')->delete($antena->foto);
+            }
+
+            $this->repo->delete($id);
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Antena removida com sucesso!',
+                ]);
+            }
+
+            return redirect()->route('antenas.index')
+                ->with('success', 'Antena excluída com sucesso.');
+        } catch (\Exception $e) {
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao excluir antena: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->route('antenas.index')
+                ->with('error', 'Erro ao excluir antena.');
         }
-
-        $this->repo->delete($id);
-
-        return redirect()->route('antenas.index')
-            ->with('success', 'Antena excluída com sucesso.');
     }
 }

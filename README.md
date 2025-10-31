@@ -279,6 +279,38 @@ npm install
 npm run build
 ```
 
+## 🧪 Testes Implementados
+
+Este projeto possui uma suíte de testes automatizados que valida os principais fluxos do sistema de cadastro de antenas. Os testes foram desenvolvidos com o framework de testes do Laravel e cobrem os seguintes cenários:
+
+### ✅ Testes de AntenaController
+
+- Criação de antena com dados válidos
+- Criação de antena com dados inválidos
+- Atualização de antena com dados válidos
+- Atualização de antena com dados inválidos
+- Exclusão de antena existente (com soft delete)
+- Exclusão de antena com foto (remove arquivo do disco)
+- Visualização de antena existente (JSON)
+- Visualização de antena inexistente (retorna 404)
+- Listagem de antenas autenticado (retorna view)
+- Listagem de antenas não autenticado (rota pública)
+- Criação de antena com upload de foto
+
+### 📦 Como executar os testes
+
+#### Executar todos os testes da classe `AntenaControllerTest`
+
+```bash
+php artisan test --filter=AntenaControllerTest
+
+Executar um método específico da classe de teste
+ 
+ Substitua test_store_antena_com_foto pelo nome do método que deseja executar. 
+ - php artisan test --filter=AntenaControllerTest::test_store_antena_com_foto
+ 
+
+
 ## 📝 TODO / Melhorias Futuras
 
 - [ ] Testes de integração completos
